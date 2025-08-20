@@ -1,25 +1,18 @@
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-
-let jobs: Record<string, any> = {}; // for demo, replace with DB
+import { createJob, jobs } from "@/lib/jobsStore";
+import { JobInput } from "@/lib/types";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const id = crypto.randomUUID();
-
-  jobs[id] = {
-    id,
-    status: "queued",
-    input: body,
-    previewUrl: null,
-    finalUrl: null,
-  };
-
-  // TODO: enqueue actual generation here
-  return NextResponse.json(jobs[id]);
+  const body = (await req.json()) as JobInput;  // typed
+  // You might validate here (zod/valibot) before createJob
+  const job = createJob(body);
+  return NextResponse.json(job, { status: 201 });
 }
 
 export async function GET() {
-  // return all jobs for testing
-  return NextResponse.json(Object.values(jobs));
+  // dev helper: list jobs
+  const list = Array.from(jobs.values());
+  return NextResponse.json(list);
 }
 

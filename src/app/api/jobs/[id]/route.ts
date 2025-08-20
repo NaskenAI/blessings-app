@@ -1,9 +1,12 @@
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
+import { getJob } from "@/lib/jobsStore";
 
-let jobs: Record<string, any> = {}; // share with above in real DB
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const job = jobs[params.id];
+export async function GET(
+  _req: Request,
+  { params }: { params: { id: string } }
+) {
+  const job = getJob(params.id);
   if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(job);
 }
