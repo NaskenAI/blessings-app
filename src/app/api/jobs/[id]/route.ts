@@ -1,13 +1,16 @@
 export const runtime = "nodejs";
-import { NextResponse } from "next/server";
-import { getJob } from "../../../../lib/jobsStore";
-
+import { NextRequest, NextResponse } from "next/server";
+import { getJob } from "@/lib/jobsStore";
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,                                  // must be present (1st arg)
+  context: { params: Promise<{ id: string }> }        // 2nd arg with Promise params
 ) {
-  const job = getJob(params.id);
+  // optional: silence the unused param rule globally in .eslintrc, or:
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  const { id } = await context.params;
+  const job = getJob(id);
   if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(job);
 }

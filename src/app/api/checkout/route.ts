@@ -1,12 +1,10 @@
-export const runtime = 'nodejs';
-import { NextResponse } from "next/server";
+export const runtime = "nodejs";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { jobId } = await req.json();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -14,7 +12,7 @@ export async function POST(req: Request) {
       price_data: {
         currency: "usd",
         product_data: { name: "Devotional Blessing Video" },
-        unit_amount: 299, // $2.99
+        unit_amount: 299,
       },
       quantity: 1,
     }],
