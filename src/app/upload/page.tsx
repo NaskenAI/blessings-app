@@ -1,37 +1,43 @@
+// src/app/upload/page.tsx
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function UploadPage() {
-  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return;
-    const file = e.target.files[0];
+  async function handle(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBusy(true);
+    const file = (e.currentTarget.elements.namedItem("photo") as HTMLInputElement).files?.[0];
+    if (!file) return;
 
-    // ask backend for signed URL
-    const res = await fetch("/api/upload-url", {
+    const presign = await fetch("/api/upload-url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileName: file.name, fileType: file.type }),
-    });
-    const { uploadUrl, key } = await res.json();
+    }).then(r => r.json());
 
-    // upload directly to S3
-    await fetch(uploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
+    await fetch(presign.uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
 
-    setStatus(`Uploaded to ${key}`);
+    const job = await fetch("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ s3Key: presign.key, effectId: "blessing", names: [] }),
+    }).then(r => r.json());
+
+    router.push(`/jobs/${job.id}`);
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Upload Photo for Blessing</h1>
-      <input type="file" accept="image/*" onChange={handleUpload} />
-      {status && <p className="mt-3">{status}</p>}
-    </div>
+    <form onSubmit={handle} className="max-w-md mx-auto p-6 space-y-4">
+      <h1 className="text-xl font-semibold">Create a Blessing</h1>
+      <input name="photo" type="file" accept="image/*" required />
+      <button disabled={busy} className="border rounded px-4 py-2">
+        {busy ? "Uploading..." : "Generate Preview"}
+      </button>
+    </form>
   );
 }
 

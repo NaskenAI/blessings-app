@@ -1,16 +1,13 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
-import { getJob } from "@/lib/jobsStore";
+import { prisma } from "@/lib/db";
 
 export async function GET(
-  _req: NextRequest,                                  // must be present (1st arg)
-  context: { params: Promise<{ id: string }> }        // 2nd arg with Promise params
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  // optional: silence the unused param rule globally in .eslintrc, or:
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
   const { id } = await context.params;
-  const job = getJob(id);
+  const job = await prisma.job.findUnique({ where: { id } });
   if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(job);
 }

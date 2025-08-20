@@ -1,0 +1,21 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Job {
+  id         String   @id @default(uuid())
+  status     String   @default("queued") // queued|processing|preview_ready|paid|final_ready|failed
+  s3Key      String
+  effectId   String
+  names      String[] // Postgres text[]
+  previewUrl String?
+  finalUrl   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
