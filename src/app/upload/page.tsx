@@ -2,29 +2,36 @@
 import { useState } from "react";
 
 export default function UploadPage() {
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState("");
 
-  async function createJob(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("Submitting...");
-    const res = await fetch("/api/jobs", {
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+
+    // ask backend for signed URL
+    const res = await fetch("/api/upload-url", {
       method: "POST",
-      body: JSON.stringify({ effectId: "blessing" }),
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName: file.name, fileType: file.type }),
     });
-    const data = await res.json();
-    setStatus(`Job ${data.id} is ${data.status}`);
+    const { uploadUrl, key } = await res.json();
+
+    // upload directly to S3
+    await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+
+    setStatus(`Uploaded to ${key}`);
   }
 
   return (
-    <main className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Create a Blessing</h1>
-      <form onSubmit={createJob} className="space-y-4">
-        <input type="file" accept="image/*" className="block w-full" required />
-        <button className="rounded-md border px-4 py-2">Generate</button>
-      </form>
-      {status && <p className="mt-4">{status}</p>}
-    </main>
+    <div className="p-6">
+      <h1 className="text-xl font-bold mb-4">Upload Photo for Blessing</h1>
+      <input type="file" accept="image/*" onChange={handleUpload} />
+      {status && <p className="mt-3">{status}</p>}
+    </div>
   );
 }
 
