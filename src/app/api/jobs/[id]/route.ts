@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-import { getJob } from "@/lib/jobsStore";
+import { getJob } from "../../../../lib/jobsStore";
+
 
 export async function GET(
   _req: Request,

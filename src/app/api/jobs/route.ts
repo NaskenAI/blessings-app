@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-import { createJob, jobs } from "@/lib/jobsStore";
-import { JobInput } from "@/lib/types";
+import { createJob, jobs } from "../../../lib/jobsStore";
+import { JobInput } from "../../../lib/types";
 
 export async function POST(req: Request) {
   const body = (await req.json()) as JobInput;  // typed
