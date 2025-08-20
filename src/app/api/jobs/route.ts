@@ -1,9 +1,12 @@
+
+// src/app/api/jobs/route.ts
 export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function GET(_req: NextRequest) {
-  // list jobs (no params here)
+  // list all jobs – no params object here
   const list = await prisma.job.findMany({ orderBy: { createdAt: "desc" } });
   return NextResponse.json(list);
 }
