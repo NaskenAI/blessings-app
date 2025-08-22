@@ -115,9 +115,11 @@ export default function UploadPage() {
       )}
       {error && <p className="text-red-600 mt-2">{error}</p>}
       {videoUrl && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2">Your Video:</h2>
-          <video src={videoUrl} controls className="w-full rounded" />
-        </div>
-      )}
-    </div>
+                <div className="mt-6">
+                  <h2 className="text-lg font-semibold mb-2">Your Video:</h2>
+                  <video src={videoUrl} controls className="w-full rounded" />
+                </div>
+              )}
+            </div>
+          );
+        }
