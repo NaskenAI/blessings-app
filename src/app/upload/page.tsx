@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import './upload/styles.css'; 
+import './styles.css'; 
 import axios from 'axios';
 
 const UploadPage = () => {
